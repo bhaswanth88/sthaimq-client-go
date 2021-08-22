@@ -3,8 +3,8 @@ package components
 import (
 	"encoding/json"
 	"errors"
-	"gitlab.com/instasafesdp/go-sthaimq-client/constants"
-	"gitlab.com/instasafesdp/go-sthaimq-client/objects"
+	"github.com/bhaswanth88/sthaimq-client-go/constants"
+	"github.com/bhaswanth88/sthaimq-client-go/objects"
 	"log"
 	"math/rand"
 	"net/url"

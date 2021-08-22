@@ -1,4 +1,4 @@
-module gitlab.com/instasafesdp/go-sthaimq-client
+module github.com/bhaswanth88/sthaimq-client-go
 
 go 1.16
 
