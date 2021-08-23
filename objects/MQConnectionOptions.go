@@ -66,9 +66,9 @@ func (M *MQConnectionOptions) SetConnectionUrl(connectionUrl *string) {
 	M.connectionUrl = connectionUrl
 }
 
-func (M *MQConnectionOptions) ClientId() *string {
-	return M.clientId
-}
+//func (M *MQConnectionOptions) ClientId() *string {
+//	return M.clientId
+//}
 
 func (M *MQConnectionOptions) SetClientId(clientId *string) {
 	M.clientId = clientId

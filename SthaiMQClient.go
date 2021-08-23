@@ -111,9 +111,9 @@ func (c *Client) reSubscribeToAllTopics() {
 func (c *Client) authenticate() {
 	message := new(objects.MQMessage)
 	message.MsgType = constants.BROKER_MSG_AUTHENTICATE
-	if c.connectionOptions.ClientId() != nil {
-		message.ClientId = *c.connectionOptions.ClientId()
-		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+	if c.connectionOptions.GetClientID() != nil {
+		message.ClientId = *c.connectionOptions.GetClientID()
+		log.Println("ClientID: " + *c.connectionOptions.GetClientID())
 
 	}
 
@@ -164,9 +164,9 @@ func (c *Client) authenticate() {
 func (c *Client) Subscribe(topic string) {
 	message := new(objects.MQMessage)
 	message.MsgType = constants.BROKER_MSG_SUBSCRIBE
-	if c.connectionOptions.ClientId() != nil {
-		message.ClientId = *c.connectionOptions.ClientId()
-		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+	if c.connectionOptions.GetClientID() != nil {
+		message.ClientId = *c.connectionOptions.GetClientID()
+		log.Println("ClientID: " + *c.connectionOptions.GetClientID())
 
 	}
 	payload := make(map[string]string)
@@ -190,9 +190,9 @@ func (c *Client) Subscribe(topic string) {
 func (c *Client) Publish(topic string, messageString string) {
 	message := new(objects.MQMessage)
 	message.MsgType = constants.BROKER_MSG_PUBLISH
-	if c.connectionOptions.ClientId() != nil {
-		message.ClientId = *c.connectionOptions.ClientId()
-		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+	if c.connectionOptions.GetClientID() != nil {
+		message.ClientId = *c.connectionOptions.GetClientID()
+		log.Println("ClientID: " + *c.connectionOptions.GetClientID())
 
 	}
 	payload := make(map[string]string)
