@@ -14,16 +14,15 @@ import (
 )
 
 type Client struct {
-	controlChannel    chan *objects.MQControlChannel
-	dataChannel       chan *objects.MQDataChannel
+	callbackChannel   chan *objects.MQControlChannel
 	connectionOptions *objects.MQConnectionOptions
 	nodeManager       *components.NodeManager
 	subscribedTopics  map[string]bool
 	wsConn            *websocket.Conn
 }
 
-func NewClient(controlChannel chan *objects.MQControlChannel, dataChannel chan *objects.MQDataChannel) *Client {
-	return &Client{controlChannel: controlChannel, dataChannel: dataChannel}
+func NewClient(controlChannel chan *objects.MQControlChannel) *Client {
+	return &Client{callbackChannel: controlChannel}
 }
 
 func (c *Client) Connect(options *objects.MQConnectionOptions) error {
@@ -52,8 +51,8 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 	c.wsConn = conn
 	log.Println("Connection Dialed..")
 	connectEvent := new(objects.MQControlChannel)
-	connectEvent.SetMessageType(1)
-	c.controlChannel <- connectEvent
+	connectEvent.MessageType = 1
+	c.callbackChannel <- connectEvent
 	log.Println("Published Connect Event to Control Channel")
 	c.authenticate()
 	go c.readMessages()
@@ -67,9 +66,9 @@ func (c *Client) readMessages() {
 			//FIXME - if connection error, reconnect has to be done
 			log.Println("read:", err)
 			closeEvent := new(objects.MQControlChannel)
-			closeEvent.SetMessageType(3)
+			closeEvent.MessageType = 3
 
-			c.controlChannel <- closeEvent
+			c.callbackChannel <- closeEvent
 			log.Println("Published Close Event to Control Channel")
 
 			return
@@ -80,14 +79,15 @@ func (c *Client) readMessages() {
 		err2 := json.Unmarshal(message, mqMessage)
 		if err2 != nil {
 			errEvent := new(objects.MQControlChannel)
-			errEvent.SetMessageType(2)
-			c.controlChannel <- errEvent
+			errEvent.MessageType = 2
+			c.callbackChannel <- errEvent
 			log.Println("Published Err Event to Control Channel")
 
 		} else {
-			dataEvent := new(objects.MQDataChannel)
-			dataEvent.SetBody(mqMessage)
-			c.dataChannel <- dataEvent
+			dataEvent := new(objects.MQControlChannel)
+			dataEvent.MessageType = 5
+			dataEvent.Body = mqMessage
+			c.callbackChannel <- dataEvent
 			log.Println("Published Data Event to Data Channel")
 
 		}
@@ -155,8 +155,8 @@ func (c *Client) authenticate() {
 		log.Println("Authenticate Sent")
 	}
 	authEvent := new(objects.MQControlChannel)
-	authEvent.SetMessageType(4)
-	c.controlChannel <- authEvent
+	authEvent.MessageType = 4
+	c.callbackChannel <- authEvent
 	log.Println("Published Auth Event to Control Channel")
 
 	c.reSubscribeToAllTopics()
