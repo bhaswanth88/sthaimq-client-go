@@ -113,8 +113,9 @@ func (c *Client) authenticate() {
 	message.SetMsgType(constants.BROKER_MSG_AUTHENTICATE)
 	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
+		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+
 	}
-	log.Println("ClientID: " + *c.connectionOptions.ClientId())
 
 	payload := make(map[string]string)
 
@@ -165,6 +166,8 @@ func (c *Client) Subscribe(topic string) {
 	message.SetMsgType(constants.BROKER_MSG_SUBSCRIBE)
 	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
+		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+
 	}
 	payload := make(map[string]string)
 	payload[constants.BROKER_MSG_SUBSCRIBE_PAYLOAD_TOPIC] = topic
@@ -189,6 +192,8 @@ func (c *Client) Publish(topic string, messageString string) {
 	message.SetMsgType(constants.BROKER_MSG_PUBLISH)
 	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
+		log.Println("ClientID: " + *c.connectionOptions.ClientId())
+
 	}
 	payload := make(map[string]string)
 	payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_TOPIC] = topic
