@@ -34,9 +34,9 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 		log.Fatal("get live node:", err)
 		return err
 	}
-	log.Println("Connecting to Live Broker:: " + broker.NodeClusterIp() + ":" + strconv.Itoa(broker.NodeBrokerPort()))
+	log.Println("Connecting to Live Broker:: " + broker.NodeClusterIP + ":" + strconv.Itoa(broker.NodeBrokerPort))
 
-	wsUrl, err := url.Parse("ws://" + broker.NodeClusterIp() + ":" + strconv.Itoa(broker.NodeBrokerPort()))
+	wsUrl, err := url.Parse("ws://" + broker.NodeClusterIP + ":" + strconv.Itoa(broker.NodeBrokerPort))
 	if err != nil {
 		log.Fatal("url parse:", err)
 

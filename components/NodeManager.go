@@ -63,7 +63,7 @@ func (n *NodeManager) GetRandomLiveNode() (*objects.BrokerNode, error) {
 	} else {
 		selectedBroker := liveBrokers[rand.Intn(len(liveBrokers))]
 
-		log.Println("[NodeManager][GetRandomLiveNode] Selected Broker: " + selectedBroker.NodeName())
+		log.Println("[NodeManager][GetRandomLiveNode] Selected Broker: " + selectedBroker.NodeName)
 		return &selectedBroker, nil
 	}
 }
