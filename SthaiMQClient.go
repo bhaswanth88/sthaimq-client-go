@@ -110,9 +110,9 @@ func (c *Client) reSubscribeToAllTopics() {
 }
 func (c *Client) authenticate() {
 	message := new(objects.MQMessage)
-	message.SetMsgType(constants.BROKER_MSG_AUTHENTICATE)
+	message.MsgType = constants.BROKER_MSG_AUTHENTICATE
 	if c.connectionOptions.ClientId() != nil {
-		message.SetClientId(*c.connectionOptions.ClientId())
+		message.ClientId = *c.connectionOptions.ClientId()
 		log.Println("ClientID: " + *c.connectionOptions.ClientId())
 
 	}
@@ -145,8 +145,8 @@ func (c *Client) authenticate() {
 
 	}
 
-	message.SetPayload(payload)
-	message.SetMessageId(uuid.New().String())
+	message.Payload = payload
+	message.MessageId = uuid.New().String()
 	err := c.sendMessage(message)
 	if err != nil {
 		log.Println("Failed to Send Authenticate")
@@ -163,16 +163,16 @@ func (c *Client) authenticate() {
 }
 func (c *Client) Subscribe(topic string) {
 	message := new(objects.MQMessage)
-	message.SetMsgType(constants.BROKER_MSG_SUBSCRIBE)
+	message.MsgType = constants.BROKER_MSG_SUBSCRIBE
 	if c.connectionOptions.ClientId() != nil {
-		message.SetClientId(*c.connectionOptions.ClientId())
+		message.ClientId = *c.connectionOptions.ClientId()
 		log.Println("ClientID: " + *c.connectionOptions.ClientId())
 
 	}
 	payload := make(map[string]string)
 	payload[constants.BROKER_MSG_SUBSCRIBE_PAYLOAD_TOPIC] = topic
-	message.SetPayload(payload)
-	message.SetMessageId(uuid.New().String())
+	message.Payload = payload
+	message.MessageId = uuid.New().String()
 	err := c.sendMessage(message)
 	if c.subscribedTopics == nil {
 		c.subscribedTopics = make(map[string]bool)
@@ -189,17 +189,17 @@ func (c *Client) Subscribe(topic string) {
 
 func (c *Client) Publish(topic string, messageString string) {
 	message := new(objects.MQMessage)
-	message.SetMsgType(constants.BROKER_MSG_PUBLISH)
+	message.MsgType = constants.BROKER_MSG_PUBLISH
 	if c.connectionOptions.ClientId() != nil {
-		message.SetClientId(*c.connectionOptions.ClientId())
+		message.ClientId = *c.connectionOptions.ClientId()
 		log.Println("ClientID: " + *c.connectionOptions.ClientId())
 
 	}
 	payload := make(map[string]string)
 	payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_TOPIC] = topic
 	payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_MSG] = messageString
-	message.SetPayload(payload)
-	message.SetMessageId(uuid.New().String())
+	message.Payload = payload
+	message.MessageId = uuid.New().String()
 	err := c.sendMessage(message)
 	if err != nil {
 		log.Println("Failed to Publish For Topic: " + topic + " with message: " + messageString)
@@ -211,7 +211,7 @@ func (c *Client) Publish(topic string, messageString string) {
 }
 func (c *Client) sendMessage(message *objects.MQMessage) error {
 	if c.wsConn != nil {
-		log.Println("Connection Exists, sending the message of Type: " + message.MsgType())
+		log.Println("Connection Exists, sending the message of Type: " + message.MsgType)
 
 		bytesData, err := json.Marshal(message)
 		if err != nil {
