@@ -55,8 +55,16 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 	c.callbackChannel <- connectEvent
 	log.Println("Published Connect Event to Control Channel")
 	c.authenticate()
-	return c.readMessages()
-	//return nil
+	err2 := c.readMessages()
+	if err2 != nil {
+		if *options.AutoReconnect() {
+			return c.Connect(options)
+		}
+		return err2
+	}
+
+	//ideally it should never come to this case
+	return nil
 }
 
 func (c *Client) readMessages() error {
