@@ -6,7 +6,7 @@ type MQConnectionOptions struct {
 	autoReconnect     *bool
 	keepAliveInterval *int
 	connectionTimeout *int
-	authKey *string
+	authKey           *string
 
 	// END USER-------------
 	userId   *string
@@ -48,10 +48,12 @@ func (M *MQConnectionOptions) GetHeaders() *map[string]string {
 func (M *MQConnectionOptions) GetClientID() *string {
 	if M.clientId == nil {
 		if M.msCliId != nil && M.msToken != nil {
-			*M.clientId = *M.msToken + "|" + *M.msCliId
+			clientID := *M.msToken + "|" + *M.msCliId
+			M.clientId = &clientID
 		} else {
 			if M.jwtToken != nil && M.userId != nil && M.deviceId != nil {
-				*M.clientId = *M.userId + "|" + *M.deviceId
+				clientID := *M.userId + "|" + *M.deviceId
+				M.clientId = &clientID
 			}
 		}
 	}
