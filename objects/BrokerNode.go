@@ -5,7 +5,7 @@ type BrokerNode struct {
 	nodeClusterPort int    `json:"nodeClusterPort"`
 	nodeClusterIp   string `json:"nodeClusterIp"`
 	nodeBrokerPort  int    `json:"nodeBrokerPort"`
-	isOnline        bool   `json:"isOnline"`
+	isOnline        bool   `json:"online"`
 }
 
 func (b *BrokerNode) NodeName() string {

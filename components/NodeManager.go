@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -46,6 +47,7 @@ func (n *NodeManager) GetLiveBrokers() ([]objects.BrokerNode, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Brokers Live Count:: "+ strconv.Itoa(len(brokers)))
 	return brokers, nil
 
 }
@@ -60,6 +62,7 @@ func (n *NodeManager) GetRandomLiveNode() (*objects.BrokerNode, error) {
 		return nil, errors.New("broker: 0 live brokers")
 	} else {
 		selectedBroker := liveBrokers[rand.Intn(len(liveBrokers))]
+
 		log.Println("[NodeManager][GetRandomLiveNode] Selected Broker: " + selectedBroker.NodeName())
 		return &selectedBroker, nil
 	}
