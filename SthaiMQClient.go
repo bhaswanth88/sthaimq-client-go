@@ -211,11 +211,13 @@ func (c *Client) Publish(topic string, messageString string) {
 }
 func (c *Client) sendMessage(message *objects.MQMessage) error {
 	if c.wsConn != nil {
-		bytesData, err := json.Marshal(*message)
+		log.Println("Connection Exists, sending the message of Type: " + message.MsgType())
+
+		bytesData, err := json.Marshal(message)
 		if err != nil {
 			return err
 		}
-		log.Println("Connection Exists, sending the message: " + string(bytesData))
+		log.Println("Message Data: " + string(bytesData))
 
 		err2 := c.wsConn.WriteMessage(websocket.BinaryMessage, bytesData)
 		if err2 != nil {
