@@ -55,12 +55,13 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 	c.callbackChannel <- connectEvent
 	log.Println("Published Connect Event to Control Channel")
 	c.authenticate()
-	go c.readMessages()
-	return nil
+	return c.readMessages()
+	//return nil
 }
 
-func (c *Client) readMessages() {
+func (c *Client) readMessages() error {
 	for {
+		log.Println("Waiting for messages to be read from WsConn")
 		_, message, err := c.wsConn.ReadMessage()
 		if err != nil {
 			//FIXME - if connection error, reconnect has to be done
@@ -71,7 +72,7 @@ func (c *Client) readMessages() {
 			c.callbackChannel <- closeEvent
 			log.Println("Published Close Event to Control Channel")
 
-			return
+			return err
 		}
 		log.Printf("recv: %s", message)
 
@@ -89,7 +90,6 @@ func (c *Client) readMessages() {
 			dataEvent.Body = mqMessage
 			c.callbackChannel <- dataEvent
 			log.Println("Published Data Event to Data Channel")
-
 		}
 	}
 }
