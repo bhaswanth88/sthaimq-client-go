@@ -211,7 +211,7 @@ func (c *Client) Publish(topic string, messageString string) {
 }
 func (c *Client) sendMessage(message *objects.MQMessage) error {
 	if c.wsConn != nil {
-		bytesData, err := json.Marshal(message)
+		bytesData, err := json.Marshal(*message)
 		if err != nil {
 			return err
 		}
