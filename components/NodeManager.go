@@ -23,6 +23,7 @@ func NewNodeManager(connectionOptions *objects.MQConnectionOptions) *NodeManager
 }
 
 func (n *NodeManager) GetLiveBrokers() ([]objects.BrokerNode, error) {
+	log.Println("Getting Live Brokers From URL: " + *n.connectionOptions.ConnectionUrl() + constants.API_GET_GET_LIVE_NODE_URL)
 	urlObject, err := url.Parse(*n.connectionOptions.ConnectionUrl() + constants.API_GET_GET_LIVE_NODE_URL)
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +40,8 @@ func (n *NodeManager) GetLiveBrokers() ([]objects.BrokerNode, error) {
 		return nil, err
 	}
 	var brokers []objects.BrokerNode
+	log.Println("Live Brokers Response:: " + strResponse)
+
 	err = json.Unmarshal([]byte(strResponse), &brokers)
 	if err != nil {
 		return nil, err
@@ -49,12 +52,15 @@ func (n *NodeManager) GetLiveBrokers() ([]objects.BrokerNode, error) {
 func (n *NodeManager) GetRandomLiveNode() (*objects.BrokerNode, error) {
 	liveBrokers, err := n.GetLiveBrokers()
 	if err != nil {
+		log.Println("[NodeManager][GetRandomLiveNode] Error in selecting live brokers")
 		return nil, err
 	}
 	if len(liveBrokers) == 0 {
+		log.Println("[NodeManager][GetRandomLiveNode] No live brokers")
 		return nil, errors.New("broker: 0 live brokers")
 	} else {
 		selectedBroker := liveBrokers[rand.Intn(len(liveBrokers))]
+		log.Println("[NodeManager][GetRandomLiveNode] Selected Broker: " + selectedBroker.NodeName())
 		return &selectedBroker, nil
 	}
 }
