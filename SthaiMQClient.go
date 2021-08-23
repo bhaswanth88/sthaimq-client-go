@@ -3,11 +3,11 @@ package sthaimq
 import (
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"github.com/bhaswanth88/sthaimq-client-go/components"
 	"github.com/bhaswanth88/sthaimq-client-go/constants"
 	"github.com/bhaswanth88/sthaimq-client-go/objects"
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
 	"strconv"
@@ -32,15 +32,18 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 	broker, err := c.nodeManager.GetRandomLiveNode()
 	if err != nil {
 		log.Fatal("get live node:", err)
-
 		return err
 	}
+	log.Println("Connecting to Live Broker:: " + broker.NodeClusterIp() + ":" + strconv.Itoa(broker.NodeBrokerPort()))
+
 	wsUrl, err := url.Parse("ws://" + broker.NodeClusterIp() + ":" + strconv.Itoa(broker.NodeBrokerPort()))
 	if err != nil {
 		log.Fatal("url parse:", err)
 
 		return err
 	}
+
+	log.Println("URL: " + wsUrl.String())
 	conn, _, err := websocket.DefaultDialer.Dial(wsUrl.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
@@ -96,27 +99,45 @@ func (c *Client) authenticate() {
 	message := new(objects.MQMessage)
 	message.SetMsgType(constants.BROKER_MSG_AUTHENTICATE)
 	message.SetClientId(*c.connectionOptions.ClientId())
+	log.Println("ClientID: " + *c.connectionOptions.ClientId())
+
 	payload := make(map[string]string)
 
 	if c.connectionOptions.MsCliId() != nil {
 		payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_MASTERCLID] = *c.connectionOptions.MsCliId()
+		log.Println("MSClid: " + *c.connectionOptions.MsCliId())
+
 	}
 	if c.connectionOptions.MsToken() != nil {
 		payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_MASTERTOKEN] = *c.connectionOptions.MsToken()
+		log.Println("MStoken: " + *c.connectionOptions.MsToken())
+
 	}
 	if c.connectionOptions.JwtToken() != nil {
 		payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_XTOKEN] = *c.connectionOptions.JwtToken()
+		log.Println("JwtToken: " + *c.connectionOptions.JwtToken())
+
 	}
 	if c.connectionOptions.DeviceId() != nil {
 		payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_XDEVICEID] = *c.connectionOptions.DeviceId()
+		log.Println("DeviceId: " + *c.connectionOptions.DeviceId())
+
 	}
 	if c.connectionOptions.UserId() != nil {
 		payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_XUID] = *c.connectionOptions.UserId()
+		log.Println("UserId: " + *c.connectionOptions.UserId())
+
 	}
 
 	message.SetPayload(payload)
 	message.SetMessageId(uuid.New().String())
-	c.sendMessage(message)
+	err := c.sendMessage(message)
+	if err != nil {
+		log.Println("Failed to Send Authenticate")
+
+	} else {
+		log.Println("Authenticate Sent")
+	}
 
 	c.reSubscribeToAllTopics()
 }
@@ -128,11 +149,18 @@ func (c *Client) Subscribe(topic string) {
 	payload[constants.BROKER_MSG_SUBSCRIBE_PAYLOAD_TOPIC] = topic
 	message.SetPayload(payload)
 	message.SetMessageId(uuid.New().String())
-	c.sendMessage(message)
+	err := c.sendMessage(message)
 	if c.subscribedTopics == nil {
 		c.subscribedTopics = make(map[string]bool)
 	}
 	c.subscribedTopics[topic] = true
+	if err != nil {
+		log.Println("Failed to Subscribed For Topic: " + topic)
+
+	} else {
+		log.Println("Subscribe Sent For Topic: " + topic)
+	}
+
 }
 
 func (c *Client) Publish(topic string, messageString string) {
@@ -144,7 +172,13 @@ func (c *Client) Publish(topic string, messageString string) {
 	payload[constants.BROKER_MSG_PUBLISH_PAYLOAD_MSG] = messageString
 	message.SetPayload(payload)
 	message.SetMessageId(uuid.New().String())
-	c.sendMessage(message)
+	err := c.sendMessage(message)
+	if err != nil {
+		log.Println("Failed to Publish For Topic: " + topic + " with message: " + messageString)
+
+	} else {
+		log.Println("Publish Sent For Topic: " + topic + " with message: " + messageString)
+	}
 
 }
 func (c *Client) sendMessage(message *objects.MQMessage) error {
