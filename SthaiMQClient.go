@@ -50,6 +50,11 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 		return err
 	}
 	c.wsConn = conn
+	connectEvent := new(objects.MQControlChannel)
+	connectEvent.SetMessageType(1)
+	c.controlChannel <- connectEvent
+
+	c.authenticate()
 	go c.readMessages()
 	return nil
 }
@@ -140,7 +145,9 @@ func (c *Client) authenticate() {
 	} else {
 		log.Println("Authenticate Sent")
 	}
-
+	authEvent := new(objects.MQControlChannel)
+	authEvent.SetMessageType(4)
+	c.controlChannel <- authEvent
 	c.reSubscribeToAllTopics()
 }
 func (c *Client) Subscribe(topic string) {

@@ -2,7 +2,7 @@ package objects
 
 
 type MQControlChannel struct {
-	messageType int // 1 - onOpen, 2-onError, 3-OnClose
+	messageType int // 1 - onOpen, 2-onError, 3-OnClose, 4, OnAuthenticate
 	messagePayload *string
 }
 
