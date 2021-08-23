@@ -50,10 +50,11 @@ func (c *Client) Connect(options *objects.MQConnectionOptions) error {
 		return err
 	}
 	c.wsConn = conn
+	log.Println("Connection Dialed..")
 	connectEvent := new(objects.MQControlChannel)
 	connectEvent.SetMessageType(1)
 	c.controlChannel <- connectEvent
-
+	log.Println("Published Connect Event to Control Channel")
 	c.authenticate()
 	go c.readMessages()
 	return nil
@@ -67,7 +68,10 @@ func (c *Client) readMessages() {
 			log.Println("read:", err)
 			closeEvent := new(objects.MQControlChannel)
 			closeEvent.SetMessageType(3)
+
 			c.controlChannel <- closeEvent
+			log.Println("Published Close Event to Control Channel")
+
 			return
 		}
 		log.Printf("recv: %s", message)
@@ -78,10 +82,14 @@ func (c *Client) readMessages() {
 			errEvent := new(objects.MQControlChannel)
 			errEvent.SetMessageType(2)
 			c.controlChannel <- errEvent
+			log.Println("Published Err Event to Control Channel")
+
 		} else {
 			dataEvent := new(objects.MQDataChannel)
 			dataEvent.SetBody(mqMessage)
 			c.dataChannel <- dataEvent
+			log.Println("Published Data Event to Data Channel")
+
 		}
 	}
 }
@@ -103,7 +111,7 @@ func (c *Client) reSubscribeToAllTopics() {
 func (c *Client) authenticate() {
 	message := new(objects.MQMessage)
 	message.SetMsgType(constants.BROKER_MSG_AUTHENTICATE)
-	if c.connectionOptions.ClientId()!=nil{
+	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
 	}
 	log.Println("ClientID: " + *c.connectionOptions.ClientId())
@@ -148,12 +156,14 @@ func (c *Client) authenticate() {
 	authEvent := new(objects.MQControlChannel)
 	authEvent.SetMessageType(4)
 	c.controlChannel <- authEvent
+	log.Println("Published Auth Event to Control Channel")
+
 	c.reSubscribeToAllTopics()
 }
 func (c *Client) Subscribe(topic string) {
 	message := new(objects.MQMessage)
 	message.SetMsgType(constants.BROKER_MSG_SUBSCRIBE)
-	if c.connectionOptions.ClientId()!=nil{
+	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
 	}
 	payload := make(map[string]string)
@@ -177,7 +187,7 @@ func (c *Client) Subscribe(topic string) {
 func (c *Client) Publish(topic string, messageString string) {
 	message := new(objects.MQMessage)
 	message.SetMsgType(constants.BROKER_MSG_PUBLISH)
-	if c.connectionOptions.ClientId()!=nil{
+	if c.connectionOptions.ClientId() != nil {
 		message.SetClientId(*c.connectionOptions.ClientId())
 	}
 	payload := make(map[string]string)
@@ -200,11 +210,15 @@ func (c *Client) sendMessage(message *objects.MQMessage) error {
 		if err != nil {
 			return err
 		}
+		log.Println("Connection Exists, sending the message: " + string(bytesData))
+
 		err2 := c.wsConn.WriteMessage(websocket.BinaryMessage, bytesData)
 		if err2 != nil {
+			log.Println("Exception in sending message", err2.Error())
 			return err2
 		}
 	} else {
+		log.Println("Conn is nil, cannot send message")
 		return errors.New("conn: not started")
 	}
 	return nil
